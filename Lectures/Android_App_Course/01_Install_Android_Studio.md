@@ -8,10 +8,8 @@
 
 ---
 
-### 💡 핵심 요약 (3줄 요약)
-* 이 강의에서 배운 가장 중요한 **'한 가지'**를 요약합니다.
-* 예: `let`은 null-safe 호출과 결과 변환, `apply`는 객체 초기화에 사용한다.
-* 예: `ViewModel`은 UI 컨트롤러(Activity)에서 데이터를 분리하여 생명주기를 관리한다.
+### 💡 핵심 요약
+* 안드로이드 스튜디오를 설치하고, 프로젝트를 생성한다.
 
 ### 🔑 주요 개념 및 코드
 
@@ -34,3 +32,4 @@ https://developer.android.com/studio?hl=ko
 #### 5. Device Manager 에서 가상 기기를 추가할 수 있다.
 <img width="463" height="287" alt="image" src="https://github.com/user-attachments/assets/99039106-88c4-4dd1-b5e7-f91c45360075" />
 <img width="456" height="885" alt="image" src="https://github.com/user-attachments/assets/12e4a8dc-5de0-4327-bcf2-6bf676b77a2b" />
+
