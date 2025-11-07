@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import java.util.Timer
+import kotlin.concurrent.timer
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,11 +21,26 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        var timerTask: Timer? = null
+
+        var isRunning = false
+        var sec: Int = 0
         val tv: TextView = findViewById(R.id.tv_hello)
         val btn: Button = findViewById(R.id.btn_kor)
 
         btn.setOnClickListener {
-            tv.text = "안녕"
+            isRunning = !isRunning
+
+            if (isRunning) {
+                timerTask = timer(period = 1000) {
+                    sec++
+                    runOnUiThread {
+                        tv.text = sec.toString()
+                    }
+                }
+            } else {
+                timerTask?.cancel()
+            }
         }
     }
 }
