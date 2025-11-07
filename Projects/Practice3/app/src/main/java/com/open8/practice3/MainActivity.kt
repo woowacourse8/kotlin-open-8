@@ -7,8 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import java.util.Timer
+import java.util.*
 import kotlin.concurrent.timer
+import kotlin.math.abs
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,22 +25,31 @@ class MainActivity : AppCompatActivity() {
         var timerTask: Timer? = null
 
         var isRunning = false
-        var sec: Int = 0
-        val tv: TextView = findViewById(R.id.tv_hello)
+        var sec = 0f
+        val tvR: TextView = findViewById(R.id.tv_random)
+        val tvT: TextView = findViewById(R.id.tv_timer)
+        val tvP: TextView = findViewById(R.id.tv_point)
         val btn: Button = findViewById(R.id.btn_kor)
+
+        val randomBox = Random()
+        val randomNum = randomBox.nextInt(1001)
+        tvR.text = (randomNum.toFloat() / 100).toString()
+
 
         btn.setOnClickListener {
             isRunning = !isRunning
 
             if (isRunning) {
-                timerTask = timer(period = 1000) {
+                timerTask = timer(period = 10) {
                     sec++
                     runOnUiThread {
-                        tv.text = sec.toString()
+                        tvT.text = (sec / 100).toString()
                     }
                 }
             } else {
                 timerTask?.cancel()
+                val point = abs(sec - randomNum) / 100
+                tvP.text = point.toString()
             }
         }
     }
