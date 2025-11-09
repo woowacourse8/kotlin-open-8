@@ -56,4 +56,13 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Jetpack Glance (위젯 UI)
+    implementation(libs.androidx.glance.appwidget)
+    // Jetpack WorkManager (백그라운드 작업)
+    implementation(libs.androidx.work.runtime.ktx)
+    // Jetpack DataStore (데이터 저장)
+    implementation(libs.androidx.datastore.preferences)
+    // Material3 테마 적용
+    implementation(libs.androidx.glance.material3)
 }
