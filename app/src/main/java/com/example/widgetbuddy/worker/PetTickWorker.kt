@@ -1,4 +1,4 @@
-package com.example.widgetbuddy
+package com.example.widgetbuddy.worker
 
 import android.content.Context
 import androidx.work.CoroutineWorker

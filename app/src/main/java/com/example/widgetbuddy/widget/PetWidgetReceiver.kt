@@ -1,4 +1,4 @@
-package com.example.widgetbuddy
+package com.example.widgetbuddy.widget
 
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
