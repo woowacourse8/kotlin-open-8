@@ -13,19 +13,20 @@ object PetStateCalculator {
     private const val ONE_DAY_MS = 24 * ONE_HOUR_MS
 
     fun hatchPet(prefs: MutablePreferences): MutablePreferences {
-        val petType = prefs[PetDataStoreKeys.PET_TYPE] ?: TYPE_NONE
+        val petTypeString = prefs[PetDataStoreKeys.PET_TYPE] ?: PetType.NONE.name
+        val petType = PetType.fromString(petTypeString)
 
-        if (petType != TYPE_NONE) {
+        if (petType != PetType.NONE) {
             return prefs
         }
 
         val currentTime = System.currentTimeMillis()
 
-        val newPetType = if (Random.nextBoolean()) TYPE_BAPSAE else TYPE_DRAGON
+        val newPetType = if (Random.nextBoolean()) PetType.BAPSAE else PetType.DRAGON
 
         // DataStore 값 업데이트
-        prefs[PetDataStoreKeys.PET_TYPE] = newPetType
-        prefs[PetDataStoreKeys.PET_STATE] = STATE_IDLE
+        prefs[PetDataStoreKeys.PET_TYPE] = newPetType.name
+        prefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name
         prefs[PetDataStoreKeys.PET_HUNGER] = 0
         prefs[PetDataStoreKeys.PET_HAPPINESS] = 100
         prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = currentTime
@@ -54,7 +55,7 @@ object PetStateCalculator {
         }
 
         if (currentTime - lastAppVisitTime > ONE_DAY_MS) {
-            prefs[PetDataStoreKeys.PET_STATE] = STATE_NEEDS_LOVE
+            prefs[PetDataStoreKeys.PET_STATE] = PetState.NEEDS_LOVE.name
         }
 
         return prefs
