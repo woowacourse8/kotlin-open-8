@@ -7,11 +7,24 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.glance.state.GlanceStateDefinition
+import java.io.File
 
 /**
  * 앱 전체에서 사용할 DataStore 인스턴스
  */
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "pet_prefs")
+
+object PetStateDefinition : GlanceStateDefinition<Preferences> {
+    override suspend fun getDataStore(context: Context, fileKey: String): DataStore<Preferences> {
+        return context.dataStore
+    }
+
+    override fun getLocation(context: Context, fileKey: String): File {
+        return context.preferencesDataStoreFile("pet_prefs")
+    }
+}
 
 /**
  * DataStore의 Preference 키를 관리한다.
