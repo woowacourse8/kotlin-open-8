@@ -29,11 +29,14 @@ object PetStateCalculator {
         // DataStore 값 업데이트
         prefs[PetDataStoreKeys.PET_TYPE] = newPetType.name
         prefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name
+        prefs[PetDataStoreKeys.PET_NAME] = "뽀짝이"
         prefs[PetDataStoreKeys.PET_HUNGER] = 0
         prefs[PetDataStoreKeys.PET_HAPPINESS] = 100
         prefs[PetDataStoreKeys.PET_JOY] = 100
         prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = currentTime
         prefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] = currentTime
+        prefs[PetDataStoreKeys.PET_AFFECTION_COUNT] = 0
+        prefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] = LocalDate.now().toString()
 
         return prefs
     }

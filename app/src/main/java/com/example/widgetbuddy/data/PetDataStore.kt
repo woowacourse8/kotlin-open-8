@@ -48,4 +48,8 @@ object PetDataStoreKeys {
     // 펫 애정도
     val PET_AFFECTION_COUNT = intPreferencesKey("pet_affection_count")
     val LAST_AFFECTION_UPDATE_DATE = stringPreferencesKey("last_affection_update_date")
+
+    // 펫 이름 / 유저 이름
+    val PET_NAME = stringPreferencesKey("pet_name")
+    val USER_NAME = stringPreferencesKey("user_name")
 }

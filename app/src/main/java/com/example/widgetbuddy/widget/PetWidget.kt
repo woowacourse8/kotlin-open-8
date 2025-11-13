@@ -20,6 +20,7 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.*
+import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
@@ -50,22 +51,25 @@ class PetWidget : GlanceAppWidget() {
 
         val petState = PetState.fromString(petStateString)
         val petType = PetType.fromString(petTypeString)
-        val affectionCount = prefs?.get(PetDataStoreKeys.PET_AFFECTION_COUNT) ?: 0
 
         Log.d(TAG, "Content: petState = $petState, petType = $petType")
 
+        val petName = prefs?.get(PetDataStoreKeys.PET_NAME) ?: "뽀짝이"
+        val userName = prefs?.get(PetDataStoreKeys.USER_NAME) ?: "주인님"
+
+        val affectionCount = prefs?.get(PetDataStoreKeys.PET_AFFECTION_COUNT) ?: 0
         val imageRes = PetVisualMapper.getImageResource(petType, petState)
 
-        val textToShow = when (petState) {
-            PetState.EGG -> "뽀짝 뽀짝"
-            PetState.IDLE -> {
-                val hunger = prefs?.get(PetDataStoreKeys.PET_HUNGER) ?: 0
-                val joy = prefs?.get(PetDataStoreKeys.PET_JOY) ?: 100
-                "배고픔: $hunger, 즐거움: $joy"
-            }
+        val hunger = prefs?.get(PetDataStoreKeys.PET_HUNGER) ?: 0
+        val joy = prefs?.get(PetDataStoreKeys.PET_JOY) ?: 0
 
-            PetState.NEEDS_LOVE -> "외로워요.. 앱을 방문해 주세요!"
-        }
+        val textToShow = PetDialogueMapper.getDialogue(
+            state = petState,
+            hunger = hunger,
+            joy = joy,
+            petName = petName,
+            userName = userName
+        )
 
         // --- UI Layout ---
         Column(
@@ -85,6 +89,15 @@ class PetWidget : GlanceAppWidget() {
             verticalAlignment = Alignment.Vertical.CenterVertically,
             horizontalAlignment = Alignment.Horizontal.CenterHorizontally
         ) {
+            Text(
+                text = petName,
+                style = TextStyle(
+                    color = ColorProvider(Color.Black),
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = GlanceModifier.padding(bottom = 4.dp)
+            )
+
             Box(
                 modifier = GlanceModifier.padding(8.dp),
                 contentAlignment = Alignment.TopEnd
@@ -94,7 +107,6 @@ class PetWidget : GlanceAppWidget() {
                     contentDescription = petState.name,
                     modifier = GlanceModifier.size(80.dp)
                 )
-
                 Row(
                     verticalAlignment = Alignment.Vertical.CenterVertically
                 ) {
@@ -111,7 +123,8 @@ class PetWidget : GlanceAppWidget() {
 
             Text(
                 text = textToShow,
-                style = TextStyle(color = ColorProvider(Color.Black))
+                style = TextStyle(color = ColorProvider(Color.Black)),
+                modifier = GlanceModifier.padding(bottom = 8.dp)
             )
 
             if (petState != PetState.EGG) {
