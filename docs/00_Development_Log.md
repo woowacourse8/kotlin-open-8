@@ -9,3 +9,7 @@
 * **[11.09]** (Task) 프로젝트 기획 수정 ('위젯 드래곤' -> '위젯 버디') 및 1단계(기반 공사: 의존성 추가, 스켈레톤 파일 생성) 완료.
 * **[11.10]** (문제) 3단계 빌드 중, 'AAPT: error: resource xml/pet_widget_info not found' 리소스 오류가 Gradle 설정(SDK, JVM)을 수정해도 계속 발생.
 -> (해결) 최신 Glance 라이브러리가 해당 XML을 자동 생성해 줄 것이라 예상했으나, 공식 문서를 재확인한 결과 'AppWidgetProvider'의 고전 방식처럼 'res/xml/' 폴더에 수동으로 생성해야 하는 파일이었음. 파일을 직접 정의하여 해결.
+
+## 2주차 (11.11 ~ 11.17)
+* **[11.11]** (Task) 4단계 핵심 기능 구현: '밥주기'/'놀아주기' 버튼 추가 및 '즐거움(Joy)' 스탯 신규 도입. 'NEEDS_LOVE' 상태와 MainActivity 연동 로직 구현.
+* **[11.12]** (문제) 4단계 기능 테스트 중, '알로 돌아가는 버그', '부화가 안 되는 버그', '배고픔이 100이 되는 버그' 등 복합적인 데이터 불일치 및 크래시 문제 발생. -> (해결) 원인은 DataStore 업데이트 시 as MutablePreferences를 사용한 ClassCastException 크래시와, TimeUnit.HOURS로 인한 시간 계산 오류였음. toMutablePreferences()로 코드를 수정하고, 위젯을 삭제/재설치하여 WorkManager 작업을 갱신함으로써 모든 버그 해결.
