@@ -3,6 +3,7 @@ package com.example.widgetbuddy.logic
 import androidx.datastore.preferences.core.MutablePreferences
 import com.example.widgetbuddy.data.PetDataStoreKeys
 import com.example.widgetbuddy.util.*
+import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
@@ -39,18 +40,19 @@ object PetStateCalculator {
 
     fun feedPet(prefs: MutablePreferences): MutablePreferences {
         prefs[PetDataStoreKeys.PET_HUNGER] = 0
-
         val currentJoy = prefs[PetDataStoreKeys.PET_JOY] ?: 90
         prefs[PetDataStoreKeys.PET_JOY] = (currentJoy + 10).coerceAtMost(100)
-
         prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = System.currentTimeMillis()
+
+        checkAndGrantDailyAffection(prefs)
         return prefs
     }
 
     fun playWithPet(prefs: MutablePreferences): MutablePreferences {
         prefs[PetDataStoreKeys.PET_JOY] = 100
-
         prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = System.currentTimeMillis()
+
+        checkAndGrantDailyAffection(prefs)
         return prefs
     }
 
@@ -93,6 +95,19 @@ object PetStateCalculator {
             if (currentState != PetState.EGG) {
                 prefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name
             }
+        }
+
+        return prefs
+    }
+
+    internal fun checkAndGrantDailyAffection(prefs: MutablePreferences): MutablePreferences {
+        val today = LocalDate.now().toString()
+        val lastUpdateDate = prefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] ?: ""
+
+        if (today != lastUpdateDate) {
+            val currentAffection = prefs[PetDataStoreKeys.PET_AFFECTION_COUNT] ?: 0
+            prefs[PetDataStoreKeys.PET_AFFECTION_COUNT] = currentAffection + 1
+            prefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] = today
         }
 
         return prefs

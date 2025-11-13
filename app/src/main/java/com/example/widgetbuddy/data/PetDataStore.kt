@@ -44,4 +44,8 @@ object PetDataStoreKeys {
     // 타임스탬프
     val LAST_UPDATED_TIMESTAMP = longPreferencesKey("last_updated_timestamp")
     val LAST_MAIN_APP_VISIT_TIMESTAMP = longPreferencesKey("last_main_app_visit_timestamp")
+
+    // 펫 애정도
+    val PET_AFFECTION_COUNT = intPreferencesKey("pet_affection_count")
+    val LAST_AFFECTION_UPDATE_DATE = stringPreferencesKey("last_affection_update_date")
 }

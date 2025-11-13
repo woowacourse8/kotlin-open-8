@@ -3,7 +3,6 @@ package com.example.widgetbuddy
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +11,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.widgetbuddy.data.dataStore
 import androidx.glance.appwidget.updateAll
 import com.example.widgetbuddy.data.PetDataStoreKeys
+import com.example.widgetbuddy.logic.PetStateCalculator.checkAndGrantDailyAffection
 import com.example.widgetbuddy.ui.theme.WidgetBuddyTheme
 import com.example.widgetbuddy.util.PetState
 import com.example.widgetbuddy.widget.PetWidget
@@ -36,6 +36,8 @@ class MainActivity : ComponentActivity() {
                 mutablePrefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] =
                     System.currentTimeMillis()
                 mutablePrefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name
+
+                checkAndGrantDailyAffection(mutablePrefs)
 
                 mutablePrefs
             }

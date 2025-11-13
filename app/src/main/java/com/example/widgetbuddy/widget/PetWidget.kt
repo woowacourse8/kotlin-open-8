@@ -50,6 +50,7 @@ class PetWidget : GlanceAppWidget() {
 
         val petState = PetState.fromString(petStateString)
         val petType = PetType.fromString(petTypeString)
+        val affectionCount = prefs?.get(PetDataStoreKeys.PET_AFFECTION_COUNT) ?: 0
 
         Log.d(TAG, "Content: petState = $petState, petType = $petType")
 
@@ -84,13 +85,33 @@ class PetWidget : GlanceAppWidget() {
             verticalAlignment = Alignment.Vertical.CenterVertically,
             horizontalAlignment = Alignment.Horizontal.CenterHorizontally
         ) {
-            Image(
-                provider = ImageProvider(imageRes),
-                contentDescription = petState.name,
-                modifier = GlanceModifier.size(80.dp).padding(8.dp)
-            )
+            Box(
+                modifier = GlanceModifier.padding(8.dp),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                Image(
+                    provider = ImageProvider(imageRes),
+                    contentDescription = petState.name,
+                    modifier = GlanceModifier.size(80.dp)
+                )
+
+                Row(
+                    verticalAlignment = Alignment.Vertical.CenterVertically
+                ) {
+                    Text(
+                        text = "❤️",
+                        style = TextStyle(color = ColorProvider(Color.Black))
+                    )
+                    Text(
+                        text = affectionCount.toString(),
+                        style = TextStyle(color = ColorProvider(Color.Black))
+                    )
+                }
+            }
+
             Text(
-                text = textToShow, style = TextStyle(color = ColorProvider(Color.Black))
+                text = textToShow,
+                style = TextStyle(color = ColorProvider(Color.Black))
             )
 
             if (petState != PetState.EGG) {
