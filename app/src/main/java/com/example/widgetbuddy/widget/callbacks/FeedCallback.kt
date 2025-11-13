@@ -1,15 +1,14 @@
-package com.example.widgetbuddy.util
+package com.example.widgetbuddy.widget.callbacks
 
 import android.content.Context
 import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.state.updateAppWidgetState
 import com.example.widgetbuddy.data.dataStore
 import com.example.widgetbuddy.logic.PetStateCalculator
 import com.example.widgetbuddy.widget.PetWidget
 
-class HatchCallback : ActionCallback {
+class FeedCallback : ActionCallback {
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
@@ -17,7 +16,7 @@ class HatchCallback : ActionCallback {
     ) {
         context.dataStore.updateData { immutablePrefs ->
             val mutablePrefs = immutablePrefs.toMutablePreferences()
-            PetStateCalculator.hatchPet(mutablePrefs)
+            PetStateCalculator.feedPet(mutablePrefs)
             mutablePrefs
         }
 

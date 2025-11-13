@@ -39,6 +39,7 @@ object PetDataStoreKeys {
     // 펫 스탯
     val PET_HUNGER = intPreferencesKey("pet_hunger")
     val PET_HAPPINESS = intPreferencesKey("pet_happiness")
+    val PET_JOY = intPreferencesKey("pet_joy")
 
     // 타임스탬프
     val LAST_UPDATED_TIMESTAMP = longPreferencesKey("last_updated_timestamp")

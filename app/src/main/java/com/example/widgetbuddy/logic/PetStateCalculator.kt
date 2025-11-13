@@ -30,9 +30,27 @@ object PetStateCalculator {
         prefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name
         prefs[PetDataStoreKeys.PET_HUNGER] = 0
         prefs[PetDataStoreKeys.PET_HAPPINESS] = 100
+        prefs[PetDataStoreKeys.PET_JOY] = 100
         prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = currentTime
         prefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] = currentTime
 
+        return prefs
+    }
+
+    fun feedPet(prefs: MutablePreferences): MutablePreferences {
+        prefs[PetDataStoreKeys.PET_HUNGER] = 0
+
+        val currentJoy = prefs[PetDataStoreKeys.PET_JOY] ?: 90
+        prefs[PetDataStoreKeys.PET_JOY] = (currentJoy + 10).coerceAtMost(100)
+
+        prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = System.currentTimeMillis()
+        return prefs
+    }
+
+    fun playWithPet(prefs: MutablePreferences): MutablePreferences {
+        prefs[PetDataStoreKeys.PET_JOY] = 100
+
+        prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = System.currentTimeMillis()
         return prefs
     }
 
@@ -46,20 +64,35 @@ object PetStateCalculator {
         // 1시간 이상 경과했을 때 업데이트
         if (elapsedTime > 0) {
             val currentHunger = prefs[PetDataStoreKeys.PET_HUNGER] ?: 0
-            val currentHappiness = prefs[PetDataStoreKeys.PET_HAPPINESS] ?: 100
+            val currentJoy = prefs[PetDataStoreKeys.PET_JOY] ?: 100
+            var currentHappiness = prefs[PetDataStoreKeys.PET_HAPPINESS] ?: 100
 
             val newHunger = (currentHunger + elapsedHours * 5).coerceAtMost(100)
-            val newHappiness = (currentHappiness - elapsedHours * 5).coerceAtLeast(0)
+            val newJoy = (currentJoy - elapsedHours * 5).coerceAtLeast(0)
+
+            if (newJoy < 20) {
+                currentHappiness = (currentHappiness - elapsedHours * 5).coerceAtLeast(0)
+            }
 
             prefs[PetDataStoreKeys.PET_HUNGER] = newHunger
-            prefs[PetDataStoreKeys.PET_HAPPINESS] = newHappiness
-
+            prefs[PetDataStoreKeys.PET_JOY] = newJoy
+            prefs[PetDataStoreKeys.PET_HAPPINESS] = currentHappiness
             prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = currentTime
         }
 
+        val happiness = prefs[PetDataStoreKeys.PET_HAPPINESS] ?: 100
         val lastAppVisitTime = prefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] ?: currentTime
-        if (currentTime - lastAppVisitTime > ONE_DAY_MS) {
+
+        val isSad = happiness < 30
+        val isLonely = (currentTime - lastAppVisitTime) > ONE_DAY_MS
+
+        if (isSad || isLonely) {
             prefs[PetDataStoreKeys.PET_STATE] = PetState.NEEDS_LOVE.name
+        } else {
+            val currentState = PetState.fromString(prefs[PetDataStoreKeys.PET_STATE])
+            if (currentState != PetState.EGG) {
+                prefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name
+            }
         }
 
         return prefs
