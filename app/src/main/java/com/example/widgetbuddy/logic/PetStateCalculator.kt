@@ -11,7 +11,7 @@ import kotlin.random.Random
  * 펫의 상태를 계산하고 업데이트하는 로직을 담당한다.
  */
 object PetStateCalculator {
-    private val ONE_HOUR_MS = TimeUnit.MINUTES.toMillis(15)
+    private val ONE_HOUR_MS = TimeUnit.MINUTES.toMillis(60)
     private val ONE_DAY_MS = TimeUnit.DAYS.toMillis(1)
 
     fun hatchPet(prefs: MutablePreferences): MutablePreferences {
@@ -71,6 +71,7 @@ object PetStateCalculator {
             val currentHunger = prefs[PetDataStoreKeys.PET_HUNGER] ?: 0
             val currentJoy = prefs[PetDataStoreKeys.PET_JOY] ?: 100
             var currentHappiness = prefs[PetDataStoreKeys.PET_HAPPINESS] ?: 100
+            var currentMisery = prefs[PetDataStoreKeys.PET_MISERY] ?: 0
 
             val newHunger = (currentHunger + elapsedHours * 5).coerceAtMost(100)
             val newJoy = (currentJoy - elapsedHours * 5).coerceAtLeast(0)
@@ -79,19 +80,35 @@ object PetStateCalculator {
                 currentHappiness = (currentHappiness - elapsedHours * 5).coerceAtLeast(0)
             }
 
+            if (newHunger > 90 || newJoy < 10) {
+                currentMisery = (currentMisery + elapsedHours * 5).coerceAtMost(100)
+            } else {
+                currentMisery = (currentMisery - elapsedHours * 5).coerceAtLeast(0)
+            }
+
             prefs[PetDataStoreKeys.PET_HUNGER] = newHunger
             prefs[PetDataStoreKeys.PET_JOY] = newJoy
             prefs[PetDataStoreKeys.PET_HAPPINESS] = currentHappiness
+            prefs[PetDataStoreKeys.PET_MISERY] = currentMisery
             prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = currentTime
         }
 
         val happiness = prefs[PetDataStoreKeys.PET_HAPPINESS] ?: 100
         val lastAppVisitTime = prefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] ?: currentTime
+        val misery = prefs[PetDataStoreKeys.PET_MISERY] ?: 0
 
         val isSad = happiness < 30
         val isLonely = (currentTime - lastAppVisitTime) > ONE_DAY_MS
 
-        if (isSad || isLonely) {
+        val hasRunAway = misery >= 100
+        val isWarning = misery >= 80
+
+        // 상태 우선 순위: 1. 가출 2. 경고 3. 외로움
+        if (hasRunAway) {
+            prefs[PetDataStoreKeys.PET_STATE] = PetState.RUNAWAY.name
+        } else if (isWarning) {
+            prefs[PetDataStoreKeys.PET_STATE] = PetState.WARNING.name
+        } else if (isSad || isLonely) {
             prefs[PetDataStoreKeys.PET_STATE] = PetState.NEEDS_LOVE.name
         } else {
             val currentState = PetState.fromString(prefs[PetDataStoreKeys.PET_STATE])

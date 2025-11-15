@@ -6,10 +6,10 @@ object PetDialogueMapper {
     ): String {
         return when (state) {
             PetState.EGG -> "..."
-
             PetState.IDLE -> getIdleDialogues(petName, hunger, joy, userName).random()
-
             PetState.NEEDS_LOVE -> getNeedsLoveDialogue().random()
+            PetState.WARNING -> getWarningDialogue().random()
+            PetState.RUNAWAY -> getRunAwayDialogue().random()
         }
     }
 
@@ -44,4 +44,22 @@ object PetDialogueMapper {
         )
     }
 
+    private fun getWarningDialogue(): List<String> {
+        return listOf(
+            "이젠..정말 지쳤어.",
+            "아무래도.. 우리 인연이 아닌가 봐",
+            "나..혹시..버려진 거야? ㅠㅠ",
+            "나.. 완전히 잊힌 거 같아.",
+            "떠날 준비를.. 해야 할지도 모르겠어."
+        )
+    }
+
+    private fun getRunAwayDialogue(): List<String> {
+        return listOf(
+            "잠시.. 멀리 여행 좀 다녀올게.",
+            "기다렸는데.. 결국 오지 않았네. \n 잘 지내.",
+            "더이상 여기 있을 이유가 없어진 것 같아. \n 안녕.",
+            "나 혹시 귀찮아졌어..? \n 조용히 사라져줄게."
+        )
+    }
 }

@@ -127,7 +127,7 @@ class PetWidget : GlanceAppWidget() {
                 modifier = GlanceModifier.padding(bottom = 8.dp)
             )
 
-            if (petState != PetState.EGG) {
+            if (petState != PetState.EGG && petState != PetState.RUNAWAY) {
                 Row(modifier = GlanceModifier.padding(top = 8.dp)) {
                     Button(
                         text = "밥주기",

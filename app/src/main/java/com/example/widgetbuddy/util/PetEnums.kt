@@ -9,7 +9,9 @@ import com.example.widgetbuddy.R
 enum class PetState {
     EGG,
     IDLE,
-    NEEDS_LOVE;
+    NEEDS_LOVE,
+    WARNING,
+    RUNAWAY;
 
     companion object {
         fun fromString(value: String?): PetState {
@@ -24,19 +26,23 @@ enum class PetState {
  */
 enum class PetType(
     val idleImage: Int,
-    val lonelyImage: Int
+    val lonelyImage: Int,
+    val warningImage: Int
 ) {
     BAPSAE(
         idleImage = R.drawable.bapsae_idle,
-        lonelyImage = R.drawable.bapsae_lonely
+        lonelyImage = R.drawable.bapsae_lonely,
+        warningImage = R.drawable.bapsae_warning
     ),
     DRAGON(
         idleImage = R.drawable.dragon_idle,
-        lonelyImage = R.drawable.dragon_lonely
+        lonelyImage = R.drawable.dragon_lonely,
+        warningImage = R.drawable.dragon_warning
     ),
     NONE(
         idleImage = R.drawable.egg,
-        lonelyImage = R.drawable.egg
+        lonelyImage = R.drawable.egg,
+        warningImage = R.drawable.egg
     );
 
     companion object {
