@@ -13,3 +13,4 @@
 ## 2주차 (11.11 ~ 11.17)
 * **[11.11]** (Task) 4단계 핵심 기능 구현: '밥주기'/'놀아주기' 버튼 추가 및 '즐거움(Joy)' 스탯 신규 도입. 'NEEDS_LOVE' 상태와 MainActivity 연동 로직 구현.
 * **[11.12]** (문제) 4단계 기능 테스트 중, '알로 돌아가는 버그', '부화가 안 되는 버그', '배고픔이 100이 되는 버그' 등 복합적인 데이터 불일치 및 크래시 문제 발생. -> (해결) 원인은 DataStore 업데이트 시 as MutablePreferences를 사용한 ClassCastException 크래시와, TimeUnit.HOURS로 인한 시간 계산 오류였음. toMutablePreferences()로 코드를 수정하고, 위젯을 삭제/재설치하여 WorkManager 작업을 갱신함으로써 모든 버그 해결.
+* **[11.13]** (Task) 날짜 세는 기능 구현, 랜덤 메시지 구현, '가출 시스템' 구현: '불행(Misery)' 스탯을 도입, 펫을 방치하면 'WARNING' 상태를 거쳐 'RUNAWAY' (가출) 상태가 되도록 PetStateCalculator 로직 완성.
