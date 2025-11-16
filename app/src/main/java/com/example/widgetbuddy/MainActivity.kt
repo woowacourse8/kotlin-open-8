@@ -1,15 +1,21 @@
 package com.example.widgetbuddy
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -25,34 +31,138 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.glance.appwidget.updateAll
-import androidx.lifecycle.lifecycleScope
 import com.example.widgetbuddy.data.PetDataStoreKeys
 import com.example.widgetbuddy.data.dataStore
 import com.example.widgetbuddy.logic.PetStateCalculator
-import com.example.widgetbuddy.logic.PetStateCalculator.checkAndGrantDailyAffection
+import com.example.widgetbuddy.ui.theme.WidgetBuddyTheme
 import com.example.widgetbuddy.util.PetState
+import com.example.widgetbuddy.util.PetType
+import com.example.widgetbuddy.util.PetVisualMapper
 import com.example.widgetbuddy.widget.PetWidget
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        healPetOnAppVisit()
         setContent {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
-            ) {
-                val petStateFlow = dataStore.data.map { prefs ->
-                    PetState.fromString(prefs[PetDataStoreKeys.PET_STATE])
+            WidgetBuddyTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    PetRoomScreen()
                 }
-                val petState by petStateFlow.collectAsState(initial = PetState.EGG)
+            }
+        }
+    }
 
-                NamingScreen(petState)
+    @Composable
+    fun PetRoomScreen() {
+        val context = LocalContext.current
+        val coroutineScope = rememberCoroutineScope()
+
+        val petState by dataStore.data.map {
+            PetState.fromString(it[PetDataStoreKeys.PET_STATE])
+        }.collectAsState(initial = PetState.EGG)
+
+        val petType by dataStore.data.map {
+            PetType.fromString(it[PetDataStoreKeys.PET_TYPE])
+        }.collectAsState(initial = PetType.NONE)
+
+        val decorPoints by dataStore.data.map {
+            it[PetDataStoreKeys.DECOR_POINTS] ?: 0
+        }.collectAsState(initial = 0)
+
+        // 메인 UI
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            // --- 1. 펫의 방 (상단 50%) ---
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(16.dp)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                // (나중에 R.drawable.room_background 이미지로 교체)
+
+                // 펫 이미지 (가운데)
+                Image(
+                    painter = painterResource(
+                        id = PetVisualMapper.getImageResource(petType, petState)
+                    ),
+                    contentDescription = "Pet",
+                    modifier = Modifier.size(120.dp)
+                )
+
+                if (decorPoints >= 5) {
+                    Image(
+                        painter = painterResource(id = R.drawable.pot), // 👈 (drawable에 pot.png 추가 필요)
+                        contentDescription = "화분",
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .size(50.dp)
+                    )
+                }
+
+                if (decorPoints >= 10) {
+                    Image(
+                        painter = painterResource(id = R.drawable.cushion), // 👈 (drawable에 cushion.png 추가 필요)
+                        contentDescription = "쿠션",
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .size(60.dp)
+                    )
+                }
+                // (포인트 15, 25 ... 계속 추가)
+            }
+
+            // --- 2. 컨트롤러 (하단) ---
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(onClick = {
+                    // '가출' 상태가 아닐 때만 '사랑주기' 가능
+                    if (petState != PetState.RUNAWAY) {
+                        coroutineScope.launch {
+                            val newPoints = giveLoveAndGetPoints(context)
+
+                            PetWidget().updateAll(context)
+
+                            when (newPoints) {
+                                5 -> Toast.makeText(context, "방구석에 예쁜 화분이 생겼다!", Toast.LENGTH_LONG)
+                                    .show()
+
+                                10 -> Toast.makeText(context, "푹신한 쿠션이 생겼다!", Toast.LENGTH_LONG)
+                                    .show()
+                                // ...
+                                else -> Toast.makeText(
+                                    context,
+                                    "사랑 주기 완료! (현재 $newPoints p)",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    } else {
+                        Toast.makeText(context, "펫이 가출했습니다...", Toast.LENGTH_SHORT).show()
+                    }
+                }) {
+                    Text("사랑 주기 ❤️ (포인트 +1)")
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                NamingScreen(currentPetState = petState)
             }
         }
     }
@@ -66,10 +176,6 @@ class MainActivity : ComponentActivity() {
         val context = LocalContext.current
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (currentPetState == PetState.RUNAWAY) {
@@ -153,26 +259,39 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun healPetOnAppVisit() {
-        this.lifecycleScope.launch {
-            dataStore.updateData { immutablePrefs ->
-                val mutablePrefs = immutablePrefs.toMutablePreferences()
-
-                mutablePrefs[PetDataStoreKeys.PET_HAPPINESS] = 100
-                mutablePrefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] =
-                    System.currentTimeMillis()
-                mutablePrefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name
-
-                checkAndGrantDailyAffection(mutablePrefs)
-
-                val currentUserName = mutablePrefs[PetDataStoreKeys.USER_NAME]
-                if (currentUserName.isNullOrBlank()) {
-                    mutablePrefs[PetDataStoreKeys.USER_NAME] = "주인님"
-                }
-
-                mutablePrefs
+    private suspend fun giveLoveAndGetPoints(context: Context): Int {
+        var newPoints = 0
+        dataStore.updateData { immutablePrefs ->
+            if (PetState.fromString(immutablePrefs[PetDataStoreKeys.PET_STATE]) == PetState.RUNAWAY) {
+                return@updateData immutablePrefs
             }
-            PetWidget().updateAll(this@MainActivity)
+
+            val mutablePrefs = immutablePrefs.toMutablePreferences()
+
+            mutablePrefs[PetDataStoreKeys.PET_HAPPINESS] = 100
+            mutablePrefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] =
+                System.currentTimeMillis()
+            mutablePrefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name
+
+            val today = LocalDate.now().toString()
+            val lastUpdateDate = mutablePrefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] ?: ""
+            if (today != lastUpdateDate) {
+                val currentAffection = mutablePrefs[PetDataStoreKeys.PET_AFFECTION_COUNT] ?: 0
+                mutablePrefs[PetDataStoreKeys.PET_AFFECTION_COUNT] = currentAffection + 1
+                mutablePrefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] = today
+            }
+
+            val currentUserName = mutablePrefs[PetDataStoreKeys.USER_NAME]
+            if (currentUserName == null || currentUserName.isBlank()) {
+                mutablePrefs[PetDataStoreKeys.USER_NAME] = "주인님"
+            }
+
+            val currentPoints = mutablePrefs[PetDataStoreKeys.DECOR_POINTS] ?: 0
+            newPoints = currentPoints + 1
+            mutablePrefs[PetDataStoreKeys.DECOR_POINTS] = newPoints
+
+            mutablePrefs
         }
+        return newPoints
     }
 }

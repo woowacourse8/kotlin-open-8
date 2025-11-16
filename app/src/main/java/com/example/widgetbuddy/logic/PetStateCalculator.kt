@@ -24,19 +24,9 @@ object PetStateCalculator {
             return prefs
         }
 
-        val currentTime = System.currentTimeMillis()
-
         val newPetType = if (Random.nextBoolean()) PetType.BAPSAE else PetType.DRAGON
 
-        // DataStore 값 업데이트
-        prefs[PetDataStoreKeys.PET_TYPE] = newPetType.name
-        prefs[PetDataStoreKeys.PET_NAME] = "뽀짝이"
-
-        initializeStat(prefs)
-        updateTimeNow(prefs)
-
-        prefs[PetDataStoreKeys.PET_AFFECTION_COUNT] = 0
-        prefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] = LocalDate.now().toString()
+        initializeData(prefs, newPetType)
 
         return prefs
     }
@@ -60,7 +50,7 @@ object PetStateCalculator {
     }
 
     fun bringPetBack(prefs: MutablePreferences): MutablePreferences {
-        initializeStat(prefs)
+        setDefaultStat(prefs)
         updateTimeNow(prefs)
 
         prefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] = LocalDate.now().toString()
@@ -143,7 +133,19 @@ object PetStateCalculator {
         return prefs
     }
 
-    private fun initializeStat(prefs: MutablePreferences) {
+    private fun initializeData(prefs: MutablePreferences, newPetType: PetType) {
+        setDefaultStat(prefs)
+        prefs[PetDataStoreKeys.PET_TYPE] = newPetType.name
+        prefs[PetDataStoreKeys.PET_NAME] = "뽀짝이"
+
+        prefs[PetDataStoreKeys.PET_AFFECTION_COUNT] = 0
+        prefs[PetDataStoreKeys.DECOR_POINTS] = 0
+
+        updateTimeNow(prefs)
+        prefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] = LocalDate.now().toString()
+    }
+
+    private fun setDefaultStat(prefs: MutablePreferences) {
         prefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name
         prefs[PetDataStoreKeys.PET_HUNGER] = 0
         prefs[PetDataStoreKeys.PET_JOY] = 100
