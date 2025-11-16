@@ -16,6 +16,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,9 +31,11 @@ import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.lifecycleScope
 import com.example.widgetbuddy.data.PetDataStoreKeys
 import com.example.widgetbuddy.data.dataStore
+import com.example.widgetbuddy.logic.PetStateCalculator
 import com.example.widgetbuddy.logic.PetStateCalculator.checkAndGrantDailyAffection
 import com.example.widgetbuddy.util.PetState
 import com.example.widgetbuddy.widget.PetWidget
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -44,15 +47,21 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                NamingScreen()
+                val petStateFlow = dataStore.data.map { prefs ->
+                    PetState.fromString(prefs[PetDataStoreKeys.PET_STATE])
+                }
+                val petState by petStateFlow.collectAsState(initial = PetState.EGG)
+
+                NamingScreen(petState)
             }
         }
     }
 
     @Composable
-    fun NamingScreen() {
+    fun NamingScreen(currentPetState: PetState) {
         var petNameInput by remember { mutableStateOf("") }
         var userNameInput by remember { mutableStateOf("") }
+
         val coroutineScope = rememberCoroutineScope()
         val context = LocalContext.current
 
@@ -63,6 +72,27 @@ class MainActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (currentPetState == PetState.RUNAWAY) {
+                Text(
+                    text = "펫이 가출했습니다...🥲",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = {
+                    // (광고 시청 시뮬레이션)
+                    coroutineScope.launch {
+                        context.dataStore.updateData { prefs ->
+                            PetStateCalculator.bringPetBack(prefs.toMutablePreferences())
+                        }
+                        PetWidget().updateAll(context)
+                        Toast.makeText(context, "펫이 돌아왔습니다!", Toast.LENGTH_SHORT).show()
+                    }
+                }) {
+                    Text("[광고 시청] 펫 다시 데려오기")
+                }
+                Spacer(modifier = Modifier.height(48.dp))
+            }
+
             Text(
                 text = "펫의 새 이름을 지어주세요!",
                 style = MaterialTheme.typography.headlineSmall

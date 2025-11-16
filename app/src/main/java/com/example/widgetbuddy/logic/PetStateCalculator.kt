@@ -11,7 +11,9 @@ import kotlin.random.Random
  * 펫의 상태를 계산하고 업데이트하는 로직을 담당한다.
  */
 object PetStateCalculator {
-    private val ONE_HOUR_MS = TimeUnit.MINUTES.toMillis(60)
+    private const val TEST_TIME = 15L
+    private const val REAL_TIME = 60L
+    private val ONE_HOUR_MS = TimeUnit.MINUTES.toMillis(REAL_TIME)
     private val ONE_DAY_MS = TimeUnit.DAYS.toMillis(1)
 
     fun hatchPet(prefs: MutablePreferences): MutablePreferences {
@@ -28,13 +30,11 @@ object PetStateCalculator {
 
         // DataStore 값 업데이트
         prefs[PetDataStoreKeys.PET_TYPE] = newPetType.name
-        prefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name
         prefs[PetDataStoreKeys.PET_NAME] = "뽀짝이"
-        prefs[PetDataStoreKeys.PET_HUNGER] = 0
-        prefs[PetDataStoreKeys.PET_HAPPINESS] = 100
-        prefs[PetDataStoreKeys.PET_JOY] = 100
-        prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = currentTime
-        prefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] = currentTime
+
+        initializeStat(prefs)
+        updateTimeNow(prefs)
+
         prefs[PetDataStoreKeys.PET_AFFECTION_COUNT] = 0
         prefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] = LocalDate.now().toString()
 
@@ -59,6 +59,14 @@ object PetStateCalculator {
         return prefs
     }
 
+    fun bringPetBack(prefs: MutablePreferences): MutablePreferences {
+        initializeStat(prefs)
+        updateTimeNow(prefs)
+
+        prefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] = LocalDate.now().toString()
+        return prefs
+    }
+
     fun applyPassiveUpdates(prefs: MutablePreferences): MutablePreferences {
         val currentTime = System.currentTimeMillis()
         val lastUpdatedTime = prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] ?: currentTime
@@ -80,10 +88,10 @@ object PetStateCalculator {
                 currentHappiness = (currentHappiness - elapsedHours * 5).coerceAtLeast(0)
             }
 
-            if (newHunger > 90 || newJoy < 10) {
-                currentMisery = (currentMisery + elapsedHours * 5).coerceAtMost(100)
+            currentMisery = if (newHunger > 90 || newJoy < 10) {
+                (currentMisery + elapsedHours * 5).coerceAtMost(100)
             } else {
-                currentMisery = (currentMisery - elapsedHours * 5).coerceAtLeast(0)
+                (currentMisery - elapsedHours * 5).coerceAtLeast(0)
             }
 
             prefs[PetDataStoreKeys.PET_HUNGER] = newHunger
@@ -120,6 +128,8 @@ object PetStateCalculator {
         return prefs
     }
 
+
+
     internal fun checkAndGrantDailyAffection(prefs: MutablePreferences): MutablePreferences {
         val today = LocalDate.now().toString()
         val lastUpdateDate = prefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] ?: ""
@@ -131,5 +141,19 @@ object PetStateCalculator {
         }
 
         return prefs
+    }
+
+    private fun initializeStat(prefs: MutablePreferences) {
+        prefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name
+        prefs[PetDataStoreKeys.PET_HUNGER] = 0
+        prefs[PetDataStoreKeys.PET_JOY] = 100
+        prefs[PetDataStoreKeys.PET_HAPPINESS] = 100
+        prefs[PetDataStoreKeys.PET_MISERY] = 0
+    }
+
+    private fun updateTimeNow(prefs: MutablePreferences) {
+        val currentTime = System.currentTimeMillis()
+        prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = currentTime
+        prefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] = currentTime
     }
 }

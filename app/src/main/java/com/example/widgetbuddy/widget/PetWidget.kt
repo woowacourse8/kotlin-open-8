@@ -79,7 +79,8 @@ class PetWidget : GlanceAppWidget() {
                         onClick = actionRunCallback<HatchCallback>()
                     )
 
-                    PetState.NEEDS_LOVE -> GlanceModifier.clickable(
+                    PetState.NEEDS_LOVE,
+                    PetState.RUNAWAY-> GlanceModifier.clickable(
                         onClick = actionStartActivity<MainActivity>()
                     )
 

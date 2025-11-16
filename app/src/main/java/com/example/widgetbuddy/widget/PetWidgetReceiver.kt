@@ -23,7 +23,7 @@ class PetWidgetReceiver : GlanceAppWidgetReceiver() {
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             WORK_NAME,
-            ExistingPeriodicWorkPolicy.REPLACE,
+            ExistingPeriodicWorkPolicy.KEEP,
             tickWorkRequest
         )
     }
