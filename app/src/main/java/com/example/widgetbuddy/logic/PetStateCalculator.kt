@@ -13,7 +13,7 @@ import kotlin.random.Random
 object PetStateCalculator {
     private const val TEST_TIME = 15L
     private const val REAL_TIME = 60L
-    private val ONE_HOUR_MS = TimeUnit.MINUTES.toMillis(REAL_TIME)
+    private val ONE_HOUR_MS = TimeUnit.MINUTES.toMillis(TEST_TIME)
     private val ONE_DAY_MS = TimeUnit.DAYS.toMillis(1)
 
     fun hatchPet(prefs: MutablePreferences): MutablePreferences {

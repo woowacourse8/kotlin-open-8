@@ -132,25 +132,21 @@ class MainActivity : ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(onClick = {
-                    // '가출' 상태가 아닐 때만 '사랑주기' 가능
                     if (petState != PetState.RUNAWAY) {
                         coroutineScope.launch {
-                            val newPoints = giveLoveAndGetPoints(context)
+                            val (totalPoints, didIncrease) = giveLoveAndGetPoints(context)
 
                             PetWidget().updateAll(context)
 
-                            when (newPoints) {
-                                5 -> Toast.makeText(context, "방구석에 예쁜 화분이 생겼다!", Toast.LENGTH_LONG)
-                                    .show()
-
-                                10 -> Toast.makeText(context, "푹신한 쿠션이 생겼다!", Toast.LENGTH_LONG)
-                                    .show()
-                                // ...
-                                else -> Toast.makeText(
-                                    context,
-                                    "사랑 주기 완료! (현재 $newPoints p)",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                            if (didIncrease) {
+                                when (totalPoints) {
+                                    5 -> Toast.makeText(context, "방구석에 예쁜 화분이 생겼다!", Toast.LENGTH_LONG).show()
+                                    10 -> Toast.makeText(context, "푹신한 쿠션이 생겼다!", Toast.LENGTH_LONG).show()
+                                    // ...
+                                    else -> Toast.makeText(context, "사랑 주기 완료! (현재 $totalPoints p)", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                Toast.makeText(context, "오늘은 이미 사랑을 줬어요. (총 $totalPoints p)", Toast.LENGTH_SHORT).show()
                             }
                         }
                     } else {
@@ -259,26 +255,36 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private suspend fun giveLoveAndGetPoints(context: Context): Int {
-        var newPoints = 0
+    private suspend fun giveLoveAndGetPoints(context: Context): Pair<Int, Boolean> {
+        var finalDecorPoints = 0
+        var didPointsIncrease = false
+
         dataStore.updateData { immutablePrefs ->
             if (PetState.fromString(immutablePrefs[PetDataStoreKeys.PET_STATE]) == PetState.RUNAWAY) {
+                finalDecorPoints = immutablePrefs[PetDataStoreKeys.DECOR_POINTS] ?: 0
                 return@updateData immutablePrefs
             }
 
             val mutablePrefs = immutablePrefs.toMutablePreferences()
 
             mutablePrefs[PetDataStoreKeys.PET_HAPPINESS] = 100
-            mutablePrefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] =
-                System.currentTimeMillis()
+            mutablePrefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] = System.currentTimeMillis()
             mutablePrefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name
+
+            var currentPoints = mutablePrefs[PetDataStoreKeys.DECOR_POINTS] ?: 0
 
             val today = LocalDate.now().toString()
             val lastUpdateDate = mutablePrefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] ?: ""
+
             if (today != lastUpdateDate) {
+                didPointsIncrease = true
+
                 val currentAffection = mutablePrefs[PetDataStoreKeys.PET_AFFECTION_COUNT] ?: 0
                 mutablePrefs[PetDataStoreKeys.PET_AFFECTION_COUNT] = currentAffection + 1
                 mutablePrefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] = today
+
+                currentPoints += 1
+                mutablePrefs[PetDataStoreKeys.DECOR_POINTS] = currentPoints
             }
 
             val currentUserName = mutablePrefs[PetDataStoreKeys.USER_NAME]
@@ -286,12 +292,9 @@ class MainActivity : ComponentActivity() {
                 mutablePrefs[PetDataStoreKeys.USER_NAME] = "주인님"
             }
 
-            val currentPoints = mutablePrefs[PetDataStoreKeys.DECOR_POINTS] ?: 0
-            newPoints = currentPoints + 1
-            mutablePrefs[PetDataStoreKeys.DECOR_POINTS] = newPoints
-
+            finalDecorPoints = currentPoints
             mutablePrefs
         }
-        return newPoints
+        return Pair(finalDecorPoints, didPointsIncrease)
     }
 }
