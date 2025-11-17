@@ -10,6 +10,8 @@ enum class PetState {
     EGG,
     IDLE,
     NEEDS_LOVE,
+    SATIETY_LOW,
+    BORED,
     WARNING,
     RUNAWAY;
 

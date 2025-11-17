@@ -37,8 +37,7 @@ object PetDataStoreKeys {
     val PET_TYPE = stringPreferencesKey("pet_type")
 
     // 펫 스탯
-    val PET_HUNGER = intPreferencesKey("pet_hunger")
-    val PET_HAPPINESS = intPreferencesKey("pet_happiness")
+    val PET_SATIETY = intPreferencesKey("pet_satiety")
     val PET_JOY = intPreferencesKey("pet_joy")
     val PET_MISERY = intPreferencesKey("pet_misery")
 
@@ -46,6 +45,10 @@ object PetDataStoreKeys {
     val LAST_UPDATED_TIMESTAMP = longPreferencesKey("last_updated_timestamp")
     val LAST_MAIN_APP_VISIT_TIMESTAMP = longPreferencesKey("last_main_app_visit_timestamp")
     val LAST_AFFECTION_UPDATE_DATE = stringPreferencesKey("last_affection_update_date")
+    val LAST_FED_TIMESTAMP = longPreferencesKey("last_fed_timestamp")
+    val LAST_PLAYED_TIMESTAMP = longPreferencesKey("last_played_timestamp")
+    val SATIETY_ZERO_TIMESTAMP = longPreferencesKey("satiety_zero_timestamp")
+    val JOY_ZERO_TIMESTAMP = longPreferencesKey("joy_zero_timestamp")
 
     // 포인트 스탯
     val PET_AFFECTION_COUNT = intPreferencesKey("pet_affection_count")
@@ -55,4 +58,7 @@ object PetDataStoreKeys {
     // 이름 (펫 / 유저)
     val PET_NAME = stringPreferencesKey("pet_name")
     val USER_NAME = stringPreferencesKey("user_name")
+
+    // 펫이 보내는 일회성 메시지
+    val PET_MESSAGE = stringPreferencesKey("pet_message")
 }

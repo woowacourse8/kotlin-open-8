@@ -22,6 +22,7 @@ import androidx.glance.currentState
 import androidx.glance.layout.*
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.example.widgetbuddy.MainActivity
@@ -60,15 +61,17 @@ class PetWidget : GlanceAppWidget() {
         val affectionCount = prefs?.get(PetDataStoreKeys.PET_AFFECTION_COUNT) ?: 0
         val imageRes = PetVisualMapper.getImageResource(petType, petState)
 
-        val hunger = prefs?.get(PetDataStoreKeys.PET_HUNGER) ?: 0
-        val joy = prefs?.get(PetDataStoreKeys.PET_JOY) ?: 0
+        val satiety = prefs?.get(PetDataStoreKeys.PET_SATIETY) ?: 100
+        val joy = prefs?.get(PetDataStoreKeys.PET_JOY) ?: 100
+        val petMessage = prefs?.get(PetDataStoreKeys.PET_MESSAGE) ?: ""
 
         val textToShow = PetDialogueMapper.getDialogue(
-            state = petState,
-            hunger = hunger,
-            joy = joy,
-            petName = petName,
-            userName = userName
+            petState,
+            satiety,
+            joy,
+            petName,
+            userName,
+            petMessage
         )
 
         // --- UI Layout ---
@@ -78,12 +81,10 @@ class PetWidget : GlanceAppWidget() {
                     PetState.EGG -> GlanceModifier.clickable(
                         onClick = actionRunCallback<HatchCallback>()
                     )
-
                     PetState.NEEDS_LOVE,
                     PetState.RUNAWAY-> GlanceModifier.clickable(
                         onClick = actionStartActivity<MainActivity>()
                     )
-
                     else -> GlanceModifier
                 }
             ),
@@ -116,7 +117,7 @@ class PetWidget : GlanceAppWidget() {
                         style = TextStyle(color = ColorProvider(Color.Black))
                     )
                     Text(
-                        text = affectionCount.toString(),
+                        text = "$affectionCount",
                         style = TextStyle(color = ColorProvider(Color.Black))
                     )
                 }
@@ -124,7 +125,10 @@ class PetWidget : GlanceAppWidget() {
 
             Text(
                 text = textToShow,
-                style = TextStyle(color = ColorProvider(Color.Black)),
+                style = TextStyle(
+                    color = ColorProvider(Color.Black),
+                    textAlign = TextAlign.Center
+                ),
                 modifier = GlanceModifier.padding(bottom = 8.dp)
             )
 
@@ -134,9 +138,7 @@ class PetWidget : GlanceAppWidget() {
                         text = "밥주기",
                         onClick = actionRunCallback<FeedCallback>()
                     )
-
                     Spacer(modifier = GlanceModifier.width(8.dp))
-
                     Button(
                         text = "놀아주기",
                         onClick = actionRunCallback<PlayCallback>()

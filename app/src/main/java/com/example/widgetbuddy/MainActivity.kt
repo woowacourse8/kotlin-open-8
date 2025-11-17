@@ -311,7 +311,6 @@ class MainActivity : ComponentActivity() {
 
             val mutablePrefs = immutablePrefs.toMutablePreferences()
 
-            mutablePrefs[PetDataStoreKeys.PET_HAPPINESS] = 100
             mutablePrefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] =
                 System.currentTimeMillis()
             mutablePrefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name

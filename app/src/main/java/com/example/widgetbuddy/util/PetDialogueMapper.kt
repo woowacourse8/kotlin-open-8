@@ -2,21 +2,25 @@ package com.example.widgetbuddy.util
 
 object PetDialogueMapper {
     fun getDialogue(
-        state: PetState, hunger: Int, joy: Int, petName: String, userName: String
+        state: PetState, satiety: Int, joy: Int, petName: String, userName: String, petMessage: String
     ): String {
+        if (petMessage.isNotBlank()) return petMessage
+
         return when (state) {
             PetState.EGG -> "..."
-            PetState.IDLE -> getIdleDialogues(petName, hunger, joy, userName).random()
+            PetState.IDLE -> getIdleDialogues(petName, satiety, joy, userName).random()
             PetState.NEEDS_LOVE -> getNeedsLoveDialogue().random()
+            PetState.SATIETY_LOW -> "배고파... 밥 줘! (포만감: $satiety)"
+            PetState.BORED -> "심심해...놀아줘! (즐거움: $joy)"
             PetState.WARNING -> getWarningDialogue().random()
             PetState.RUNAWAY -> getRunAwayDialogue().random()
         }
     }
 
     private fun getIdleDialogues(
-        petName: String, hunger: Int, joy: Int, userName: String
+        petName: String, satiety: Int, joy: Int, userName: String
     ): List<String> {
-        val statsText = "배고픔: $hunger, 즐거움: $joy"
+        val statsText = "포만감: $satiety, 즐거움: $joy"
 
         return listOf(
             statsText,
