@@ -119,7 +119,6 @@ object PetStateCalculator {
     }
 
 
-
     internal fun checkAndGrantDailyAffection(prefs: MutablePreferences): MutablePreferences {
         val today = LocalDate.now().toString()
         val lastUpdateDate = prefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] ?: ""
