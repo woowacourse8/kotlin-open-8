@@ -113,6 +113,7 @@ object PetStateCalculator {
         val currentMisery = prefs[PetDataStoreKeys.PET_MISERY] ?: 0
         prefs[PetDataStoreKeys.PET_MISERY] = (currentMisery - 10).coerceAtLeast(0)
 
+        checkAndGrantDailyAffection(prefs)
         prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = System.currentTimeMillis()
         return prefs
     }

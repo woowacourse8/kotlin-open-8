@@ -143,6 +143,11 @@ class PetWidget : GlanceAppWidget() {
                         text = "놀아주기",
                         onClick = actionRunCallback<PlayCallback>()
                     )
+                    Spacer(modifier = GlanceModifier.width(8.dp))
+                    Button(
+                        text = "말걸기",
+                        onClick = actionRunCallback<TalkCallback>()
+                    )
                 }
             }
         }
