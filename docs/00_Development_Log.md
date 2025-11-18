@@ -15,3 +15,4 @@
 * **[11.12]** (문제) 4단계 기능 테스트 중, '알로 돌아가는 버그', '부화가 안 되는 버그', '배고픔이 100이 되는 버그' 등 복합적인 데이터 불일치 및 크래시 문제 발생. -> (해결) 원인은 DataStore 업데이트 시 as MutablePreferences를 사용한 ClassCastException 크래시와, TimeUnit.HOURS로 인한 시간 계산 오류였음. toMutablePreferences()로 코드를 수정하고, 위젯을 삭제/재설치하여 WorkManager 작업을 갱신함으로써 모든 버그 해결.
 * **[11.13]** (Task) 날짜 세는 기능 구현, 랜덤 메시지 구현, '가출 시스템' 구현: '불행(Misery)' 스탯을 도입, 펫을 방치하면 'WARNING' 상태를 거쳐 'RUNAWAY' (가출) 상태가 되도록 PetStateCalculator 로직 완성.
 * **[11.16]** [11.16] (Task) '가출' 펫 복귀(광고 시뮬) 로직 및 '사랑 주기' 버튼 연동 '꾸미기 포인트' (가구 언락) 기능 구현.
+* **[11.17]** (Task) 'HUNGER' 스탯을 'SATIETY'(포만감)로 리팩토링, '말걸기' 버튼 추가 및 Google AdMob (보상형 광고) 실제 로직 연동.
