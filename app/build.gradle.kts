@@ -64,4 +64,5 @@ dependencies {
     implementation(libs.androidx.glance.material3)
     // AdMob SDK
     implementation(libs.google.play.services.ads)
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 }

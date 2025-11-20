@@ -20,4 +20,13 @@ object PetVisualMapper {
             else -> type.idleImage
         }
     }
+
+    // 추후 이미지 변경 필요 !!
+    fun getRoomBackground(decorPoints: Int): Int {
+        return when {
+            decorPoints >= 10 -> R.drawable.pot
+            decorPoints >= 5 -> R.drawable.cushion
+            else -> R.drawable.cushion
+        }
+    }
 }
