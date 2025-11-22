@@ -297,8 +297,9 @@ class MainActivity : ComponentActivity() {
 
                             if (didIncrease) {
                                 val message = when(totalPoints) {
-                                    5 -> "방구석에 예쁜 화분이 생겼다! (5P 닫성)"
-                                    10 -> "푹신한 쿠션이 생겼다! (10P 달성)"
+                                    5 -> "방에 포근한 카펫이 생겼다! (5P 닫성)"
+                                    10 -> "따뜻한 벽난로가 생겼다! (10P 달성)"
+                                    20 -> "폭신한 소파가 생겼다! (20P 달성)"
                                     else -> "사랑 주기 완료! (현재 $totalPoints P)"
                                 }
                                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()

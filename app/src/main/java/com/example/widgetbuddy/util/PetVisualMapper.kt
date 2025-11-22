@@ -21,12 +21,12 @@ object PetVisualMapper {
         }
     }
 
-    // 추후 이미지 변경 필요 !!
     fun getRoomBackground(decorPoints: Int): Int {
         return when {
-            decorPoints >= 10 -> R.drawable.pot
-            decorPoints >= 5 -> R.drawable.cushion
-            else -> R.drawable.cushion
+            decorPoints >= 20 -> R.drawable.background_3
+            decorPoints >= 10 -> R.drawable.background_2
+            decorPoints >= 5 -> R.drawable.background_1
+            else -> R.drawable.background_0
         }
     }
 }
