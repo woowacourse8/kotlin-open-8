@@ -25,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.datastore.preferences.core.edit
 import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.lifecycleScope
@@ -44,6 +45,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 enum class MainScreen {
     PET_HOUSE,
@@ -58,6 +60,7 @@ class MainActivity : ComponentActivity() {
     private val AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         MobileAds.initialize(this) {}
         loadRewardedAd()
@@ -183,9 +186,11 @@ class MainActivity : ComponentActivity() {
                 )
             }
         ) { paddingValues ->
-            Box(Modifier
-                .padding(paddingValues)
-                .fillMaxSize()) {
+            Box(
+                Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+            ) {
                 when (currentScreen) {
                     MainScreen.PET_HOUSE -> PetHouseScreen(
                         petState = petState,
@@ -296,7 +301,7 @@ class MainActivity : ComponentActivity() {
                             PetWidget().updateAll(context)
 
                             if (didIncrease) {
-                                val message = when(totalPoints) {
+                                val message = when (totalPoints) {
                                     5 -> "방에 포근한 카펫이 생겼다! (5P 닫성)"
                                     10 -> "따뜻한 벽난로가 생겼다! (10P 달성)"
                                     20 -> "폭신한 소파가 생겼다! (20P 달성)"
@@ -337,7 +342,9 @@ class MainActivity : ComponentActivity() {
         }.collectAsState(initial = "주인님")
 
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
