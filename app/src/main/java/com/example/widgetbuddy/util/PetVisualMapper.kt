@@ -14,9 +14,16 @@ object PetVisualMapper {
 
         return when (state) {
             PetState.IDLE -> type.idleImage
-            PetState.NEEDS_LOVE -> type.lonelyImage
             PetState.WARNING -> type.warningImage
             PetState.RUNAWAY -> R.drawable.message
+
+            PetState.NEEDS_LOVE -> type.lonelyImage
+            PetState.BORED -> type.boredImage
+            PetState.SATIETY_LOW -> type.hungryImage
+
+            PetState.FULL_FEEDBACK -> type.fullImage
+            PetState.JOYFUL_FEEDBACK -> type.joyfulImage
+
             else -> type.idleImage
         }
     }

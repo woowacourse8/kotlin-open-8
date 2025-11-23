@@ -10,8 +10,15 @@ object PetDialogueMapper {
             PetState.EGG -> "..."
             PetState.IDLE -> getIdleDialogues(petName, satiety, joy, userName).random()
             PetState.NEEDS_LOVE -> getNeedsLoveDialogue().random()
+
+            // 스탯 부족 상태
             PetState.SATIETY_LOW -> "배고파... 밥 줘! (포만감: $satiety)"
             PetState.BORED -> "심심해...놀아줘! (즐거움: $joy)"
+
+            PetState.FULL_FEEDBACK -> getFullFeedbackDialogue(satiety).random()
+            PetState.JOYFUL_FEEDBACK -> getJoyfulFeedbackDialogue(joy).random()
+
+            // 경고 및 가출 상태
             PetState.WARNING -> getWarningDialogue().random()
             PetState.RUNAWAY -> getRunAwayDialogue().random()
         }
@@ -20,6 +27,7 @@ object PetDialogueMapper {
     private fun getIdleDialogues(
         petName: String, satiety: Int, joy: Int, userName: String
     ): List<String> {
+        // 기존 코드 유지
         val statsText = "포만감: $satiety, 즐거움: $joy"
 
         return listOf(
@@ -37,10 +45,26 @@ object PetDialogueMapper {
         )
     }
 
+    private fun getFullFeedbackDialogue(satiety: Int): List<String> {
+        return listOf(
+            "냠냠! 정말 맛있었어! 😋",
+            "배가 빵빵해~ 최고야! (포만감: $satiety)",
+            "든든해졌어! 고마워!",
+            "잠깐 졸린다.. Zzz"
+        )
+    }
+
+    private fun getJoyfulFeedbackDialogue(joy: Int): List<String> {
+        return listOf(
+            "까르르! 너무 신나! >_<",
+            "세상에서 내가 제일 행복해! (즐거움: $joy)",
+            "에너지가 가득 찼어! 고마워!",
+            "다음에 또 놀자!"
+        )
+    }
+
     private fun getNeedsLoveDialogue(): List<String> {
         return listOf(
-            "여기 너무 좁아.. ㅠㅠ",
-            "더 넓은 곳에서 놀고 싶어!",
             "우리 집에 언제 올 거야?",
             "앱에서 나 좀 만나줘~",
             "할 말 있는데..(톡톡)",

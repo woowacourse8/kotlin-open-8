@@ -73,7 +73,7 @@ class PetWidget : GlanceAppWidget() {
         )
 
         // [디버깅 설정]
-        val isDebug = true
+        val isDebug = false
         val debugButtonColor = if (isDebug) Color.Red.copy(alpha = 0.3f) else Color.Transparent
         val debugBtnColor = if (isDebug) Color.Black.copy(alpha = 0.3f) else Color.Transparent
         val debugScreenColor = if (isDebug) Color.White.copy(alpha = 0.9f) else Color.Transparent
@@ -145,10 +145,9 @@ class PetWidget : GlanceAppWidget() {
 
                     Column(
                         modifier = GlanceModifier
-                            // .defaultWeight()
                             .height(120.dp)
                             .width(210.dp)
-                            // !! 추후 실제 이미지로 변경 !!
+                            //.background(ImageProvider(R.drawable.widget_background)),
                             .background(debugScreenColor),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -157,15 +156,19 @@ class PetWidget : GlanceAppWidget() {
                             Text(
                                 text = petName,
                                 style = TextStyle(
-                                    color = ColorProvider(Color.Black),
+                                    color = ColorProvider(Color.White),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 12.sp
                                 ),
                                 modifier = GlanceModifier.padding(bottom = 4.dp)
+                                    //.background(Color.White.copy(0.6f))
                             )
                         }
 
-                        Box(contentAlignment = Alignment.TopEnd) {
+                        Box(
+                            modifier = GlanceModifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
                             Image(
                                 provider = ImageProvider(imageRes),
                                 contentDescription = petState.name,
@@ -178,16 +181,23 @@ class PetWidget : GlanceAppWidget() {
                                             action { }
                                     )
                             )
-                            // 하트 표시
+
+                            // 2. 하트 표시: 펫 이미지 위에 겹쳐서 오른쪽 상단에 배치
                             if (petState != PetState.EGG) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                Row(
+                                    modifier = GlanceModifier
+                                        .padding(
+                                            start = petImageSize * 2f,
+                                            bottom = petImageSize * 0.4f,
+                                        ),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
                                     Text(
-                                        text = "❤️",
-                                        style = TextStyle(color = ColorProvider(Color.Black))
-                                    )
-                                    Text(
-                                        text = "$affectionCount",
-                                        style = TextStyle(color = ColorProvider(Color.Black))
+                                        text = "❤️$affectionCount",
+                                        style = TextStyle(
+                                            color = ColorProvider(Color.White)
+                                        ),
+                                        modifier = GlanceModifier.padding(end = 0.dp)
                                     )
                                 }
                             }
@@ -202,6 +212,7 @@ class PetWidget : GlanceAppWidget() {
                                 fontSize = 11.sp
                             ),
                             modifier = GlanceModifier.padding(horizontal = 4.dp)
+                                .background(Color.White.copy(0.8f))
                         )
                     }
                 }
