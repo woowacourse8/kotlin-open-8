@@ -18,6 +18,14 @@
 * **배포 상태:** Google Play Store 비공개 테스트 게시 완료
 <img width="910" height="587" alt="image" src="https://github.com/user-attachments/assets/45734bbc-80a6-48da-b5d0-89c1aa39a3b7" />
 
+<br>
+
+## 📺 프로젝트 전체 시연 영상
+
+> 아래 이미지를 클릭하면 유튜브에서 전체 시연 영상을 확인하실 수 있습니다!
+
+[위젯 버디 시연 영상 바로 가기](https://youtube.com/shorts/TjV3xrSg81Q?feature=share)
+
 
 <br>
 
