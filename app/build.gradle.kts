@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.widgetbuddy"
+    namespace = "com.starterkim.widgetbuddy"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.widgetbuddy"
+        applicationId = "com.starterkim.widgetbuddy"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

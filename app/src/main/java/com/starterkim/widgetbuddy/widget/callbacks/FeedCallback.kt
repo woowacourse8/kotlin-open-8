@@ -1,0 +1,40 @@
+package com.starterkim.widgetbuddy.widget.callbacks
+
+import android.content.Context
+import androidx.glance.GlanceId
+import androidx.glance.action.ActionParameters
+import androidx.glance.appwidget.action.ActionCallback
+import com.starterkim.widgetbuddy.data.dataStore
+import com.starterkim.widgetbuddy.logic.PetStateCalculator
+import com.starterkim.widgetbuddy.widget.PetWidget
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+class FeedCallback : ActionCallback {
+    private val scope = CoroutineScope(Dispatchers.IO)
+
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        context.dataStore.updateData { immutablePrefs ->
+            val mutablePrefs = immutablePrefs.toMutablePreferences()
+            PetStateCalculator.feedPet(mutablePrefs)
+            mutablePrefs
+        }
+        PetWidget().update(context, glanceId)
+
+        scope.launch {
+            delay(5000L) // 5초 대기
+            context.dataStore.updateData { immutablePrefs ->
+                val mutablePrefs = immutablePrefs.toMutablePreferences()
+                PetStateCalculator.restoreStateAfterFeedback(mutablePrefs)
+                mutablePrefs
+            }
+            PetWidget().update(context, glanceId)
+        }
+    }
+}
