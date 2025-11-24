@@ -25,22 +25,17 @@ class PlayCallback : ActionCallback {
         context.dataStore.updateData { immutablePrefs ->
             val mutablePrefs = immutablePrefs.toMutablePreferences()
             PetStateCalculator.playWithPet(mutablePrefs)
-            mutablePrefs[PetDataStoreKeys.PET_STATE] = PetState.JOYFUL_FEEDBACK.name
             mutablePrefs
         }
-
         PetWidget().update(context, glanceId)
 
         scope.launch {
             delay(5000L) // 5초 대기
-
             context.dataStore.updateData { immutablePrefs ->
                 val mutablePrefs = immutablePrefs.toMutablePreferences()
-
-                mutablePrefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name
+                PetStateCalculator.restoreStateAfterFeedback(mutablePrefs)
                 mutablePrefs
             }
-
             PetWidget().update(context, glanceId)
         }
     }

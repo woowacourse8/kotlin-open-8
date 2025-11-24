@@ -134,39 +134,37 @@ class MainActivity : ComponentActivity() {
         var didPointsIncrease = false
 
         dataStore.updateData { immutablePrefs ->
-            if (PetState.fromString(immutablePrefs[PetDataStoreKeys.PET_STATE]) == PetState.RUNAWAY) {
+            val currentState = PetState.fromString(immutablePrefs[PetDataStoreKeys.PET_STATE])
+
+            if (currentState == PetState.EGG || currentState == PetState.RUNAWAY) {
                 finalDecorPoints = immutablePrefs[PetDataStoreKeys.DECOR_POINTS] ?: 0
                 return@updateData immutablePrefs
             }
 
             val mutablePrefs = immutablePrefs.toMutablePreferences()
 
-            mutablePrefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] =
-                System.currentTimeMillis()
+            mutablePrefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] = System.currentTimeMillis()
             mutablePrefs[PetDataStoreKeys.PET_STATE] = PetState.IDLE.name
 
-            var currentPoints = mutablePrefs[PetDataStoreKeys.DECOR_POINTS] ?: 0
-
             val today = LocalDate.now().toString()
-            val lastUpdateDate = mutablePrefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] ?: ""
 
-            if (today != lastUpdateDate) {
+            val lastDecorDate = mutablePrefs[PetDataStoreKeys.LAST_DECOR_POINT_DATE] ?: ""
+            if (today != lastDecorDate) {
                 didPointsIncrease = true
+                var currentPoints = mutablePrefs[PetDataStoreKeys.DECOR_POINTS] ?: 0
+                currentPoints += 1
+                mutablePrefs[PetDataStoreKeys.DECOR_POINTS] = currentPoints
+                mutablePrefs[PetDataStoreKeys.LAST_DECOR_POINT_DATE] = today
+            }
 
+            val lastAffectionDate = mutablePrefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] ?: ""
+            if (today != lastAffectionDate) {
                 val currentAffection = mutablePrefs[PetDataStoreKeys.PET_AFFECTION_COUNT] ?: 0
                 mutablePrefs[PetDataStoreKeys.PET_AFFECTION_COUNT] = currentAffection + 1
                 mutablePrefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] = today
-
-                currentPoints += 1
-                mutablePrefs[PetDataStoreKeys.DECOR_POINTS] = currentPoints
             }
 
-            val currentUserName = mutablePrefs[PetDataStoreKeys.USER_NAME]
-            if (currentUserName == null || currentUserName.isBlank()) {
-                mutablePrefs[PetDataStoreKeys.USER_NAME] = "주인님"
-            }
-
-            finalDecorPoints = currentPoints
+            finalDecorPoints = mutablePrefs[PetDataStoreKeys.DECOR_POINTS] ?: 0
             mutablePrefs
         }
         return Pair(finalDecorPoints, didPointsIncrease)
@@ -232,6 +230,8 @@ class MainActivity : ComponentActivity() {
         val context = LocalContext.current
         val coroutineScope = rememberCoroutineScope()
         val petIsRunaway = petState == PetState.RUNAWAY
+        val petIsEgg = petState == PetState.EGG
+
 
         Column(modifier = Modifier.fillMaxSize()) {
             // 1. 펫의 방
@@ -293,6 +293,8 @@ class MainActivity : ComponentActivity() {
                     Button(onClick = onShowAd) {
                         Text("[광고 시청] 펫 다시 데려오기")
                     }
+                } else if(petIsEgg) {
+                    Text("아직 알 상태입니다. 위젯에서 부화시켜주세요!", color = Color.Gray)
                 } else {
                     Button(onClick = {
                         coroutineScope.launch {

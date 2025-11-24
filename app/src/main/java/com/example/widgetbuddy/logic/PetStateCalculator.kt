@@ -44,10 +44,13 @@ object PetStateCalculator {
         setDefaultStat(prefs)
         prefs[PetDataStoreKeys.PET_TYPE] = newPetType.name
         prefs[PetDataStoreKeys.PET_NAME] = "뽀짝이"
+        prefs[PetDataStoreKeys.USER_NAME] = "주인님"
         prefs[PetDataStoreKeys.PET_AFFECTION_COUNT] = 0
         prefs[PetDataStoreKeys.DECOR_POINTS] = 0
 
         updateTimeNow(prefs)
+        prefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] = ""
+        prefs[PetDataStoreKeys.LAST_DECOR_POINT_DATE] = ""
     }
 
     private fun setDefaultStat(prefs: MutablePreferences) {
@@ -74,14 +77,17 @@ object PetStateCalculator {
     // --- 상호작용 ---
     fun feedPet(prefs: MutablePreferences): MutablePreferences {
         val currentTime = System.currentTimeMillis()
-        val lastFedTime =
-            prefs[PetDataStoreKeys.LAST_FED_TIMESTAMP] ?: (currentTime - SATIETY_TOTAL_DURATION_MS)
+        checkAndGrantDailyAffection(prefs)
+        prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = System.currentTimeMillis()
+
+        val lastFedTime = prefs[PetDataStoreKeys.LAST_FED_TIMESTAMP] ?: (currentTime - SATIETY_TOTAL_DURATION_MS)
 
         if (currentTime - lastFedTime < SATIETY_FULL_DURATION_MS) {
             prefs[PetDataStoreKeys.PET_MESSAGE] = "배불러요!"
             return prefs
         }
 
+        // 스탯 업데이트
         prefs[PetDataStoreKeys.PET_SATIETY] = 100
         prefs[PetDataStoreKeys.LAST_FED_TIMESTAMP] = currentTime
         prefs[PetDataStoreKeys.SATIETY_ZERO_TIMESTAMP] = 0L
@@ -90,21 +96,24 @@ object PetStateCalculator {
         val currentMisery = prefs[PetDataStoreKeys.PET_MISERY] ?: 0
         prefs[PetDataStoreKeys.PET_MISERY] = (currentMisery - 10).coerceAtLeast(0)
 
-        checkAndGrantDailyAffection(prefs)
-        prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = System.currentTimeMillis()
+        // 피드백 상태
+        prefs[PetDataStoreKeys.PET_STATE] = PetState.FULL_FEEDBACK.name
+
         return prefs
     }
 
     fun playWithPet(prefs: MutablePreferences): MutablePreferences {
         val currentTime = System.currentTimeMillis()
-        val lastPlayedTime =
-            prefs[PetDataStoreKeys.LAST_PLAYED_TIMESTAMP] ?: (currentTime - JOY_TOTAL_DURATION_MS)
+        checkAndGrantDailyAffection(prefs)
+        prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = System.currentTimeMillis()
+        val lastPlayedTime = prefs[PetDataStoreKeys.LAST_PLAYED_TIMESTAMP] ?: (currentTime - JOY_TOTAL_DURATION_MS)
 
         if (currentTime - lastPlayedTime < JOY_FULL_DURATION_MS) {
             prefs[PetDataStoreKeys.PET_MESSAGE] = "아직 안 심심해!"
             return prefs
         }
 
+        // 스탯 업데이트
         prefs[PetDataStoreKeys.PET_JOY] = 100
         prefs[PetDataStoreKeys.LAST_PLAYED_TIMESTAMP] = currentTime
         prefs[PetDataStoreKeys.JOY_ZERO_TIMESTAMP] = 0L
@@ -113,8 +122,34 @@ object PetStateCalculator {
         val currentMisery = prefs[PetDataStoreKeys.PET_MISERY] ?: 0
         prefs[PetDataStoreKeys.PET_MISERY] = (currentMisery - 10).coerceAtLeast(0)
 
-        checkAndGrantDailyAffection(prefs)
-        prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = System.currentTimeMillis()
+        // 피드백 상태
+        prefs[PetDataStoreKeys.PET_STATE] = PetState.JOYFUL_FEEDBACK.name
+
+        return prefs
+    }
+
+    fun restoreStateAfterFeedback(prefs: MutablePreferences): MutablePreferences {
+        val satiety = prefs[PetDataStoreKeys.PET_SATIETY] ?: 100
+        val joy = prefs[PetDataStoreKeys.PET_JOY] ?: 100
+        val misery = prefs[PetDataStoreKeys.PET_MISERY] ?: 0
+        val lastAppVisitTime = prefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] ?: System.currentTimeMillis()
+        val currentTime = System.currentTimeMillis()
+
+        val isLonely = (currentTime - lastAppVisitTime) > ONE_DAY_MS
+        val isWarning = misery >= 80
+        val isSatietyLow = satiety <= 30
+        val isBored = joy <= 30
+
+        val nextState = when {
+            misery >= 100 -> PetState.RUNAWAY
+            isWarning -> PetState.WARNING
+            isLonely -> PetState.NEEDS_LOVE
+            isSatietyLow -> PetState.SATIETY_LOW
+            isBored -> PetState.BORED
+            else -> PetState.IDLE
+        }
+
+        prefs[PetDataStoreKeys.PET_STATE] = nextState.name
         return prefs
     }
 
@@ -133,7 +168,6 @@ object PetStateCalculator {
             prefs[PetDataStoreKeys.PET_AFFECTION_COUNT] = currentAffection + 1
             prefs[PetDataStoreKeys.LAST_AFFECTION_UPDATE_DATE] = today
         }
-
         return prefs
     }
 
@@ -157,9 +191,15 @@ object PetStateCalculator {
         prefs[PetDataStoreKeys.PET_JOY] = newJoy
         prefs[PetDataStoreKeys.PET_MISERY] = newMisery
         prefs[PetDataStoreKeys.LAST_UPDATED_TIMESTAMP] = currentTime
+
         prefs[PetDataStoreKeys.PET_MESSAGE] = ""
 
-        // 상태 최종 결정
+        val currentState = PetState.fromString(prefs[PetDataStoreKeys.PET_STATE])
+
+        if (currentState == PetState.FULL_FEEDBACK || currentState == PetState.JOYFUL_FEEDBACK) {
+            return prefs
+        }
+
         val lastAppVisitTime = prefs[PetDataStoreKeys.LAST_MAIN_APP_VISIT_TIMESTAMP] ?: currentTime
         val misery = prefs[PetDataStoreKeys.PET_MISERY] ?: 0
 
